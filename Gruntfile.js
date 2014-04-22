@@ -42,7 +42,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('test', ['simplemocha']);
 	// grunt.registerTask('docs', ['mkdir', 'natural_docs', 'clean']);
-	grunt.registerTask('build', ['uglify', 'markdown']);
+	grunt.registerTask('build', ['uglify', /*'markdown'*/]);
 	grunt.registerTask('benchmark', ["execute"]);
 
 	grunt.registerTask('default', ['test', 'build']);
