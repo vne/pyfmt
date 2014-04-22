@@ -217,6 +217,12 @@ describe('pyfmt', function() {
 	it('should add a dot for numbers with zero precision formatted by "f"', function() {
 		assert.deepEqual("    5.", "%#6f".pyfmt(5));
 	});
+	it('should ignore length modifiers for compatibility', function() {
+		assert.deepEqual("     5", "%6hlLf".pyfmt(5));
+	});
+	it('should NOT ignore other letters in place of length modifiers', function() {
+		assert.throws(function() { "%6zf".pyfmt(5); }, Error);
+	});
 });
 describe('pyfmt (lib)', function() {
 	it('should format strings with data passed as arguments', function() {

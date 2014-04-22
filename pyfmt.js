@@ -5,6 +5,7 @@
 		fmt_float = ['e', 'E', 'f', 'F', 'g', 'G'],
 		width_re1 = /[1-9\.]/,   // first symbol of width modifier
 		width_re = /[0-9\.]/,    // all other symbols of width modifier
+		length_re = /[hlL]/,     // length modifiers (compatibility only)
 		flags_re = /[#0\- \+]/,  // flags symbols
 		flag_map = {
 			"#": "alt",    // use alternate form where appropriate
@@ -84,15 +85,18 @@
 					res += this.format_arg(cur, data);
 					cur = {};
 					state = STATES.COPY;
+				} else if (length_re.test(c)) {
+					if (!cur.lenmod) { cur.lenmod = c; }
+					else { cur.lenmod += c; }
 				} else if (!cur.mod && width_re1.test(c)) {
 					cur.mod = c;
 				} else if (cur.mod && width_re.test(c)) {
 					cur.mod += c;
 				} else if (flags_re.test(c)) {
-					if (cur.mod) { throw "pyformat: width modifier should go after flags"; }
+					if (cur.mod) { throw new Error("pyformat: width modifier should go after flags"); }
 					cur[flag_map[c]] = true;
 				} else {
-					throw "pyformat: bad format specifier: " + c;
+					throw new Error("pyformat: bad format specifier: " + c);
 				}
 			} else if (state === STATES.NAME) {
 				if (c !== ')') {
@@ -110,15 +114,18 @@
 					res += this.format_arg(cur, data);
 					cur = {};
 					state = STATES.COPY;
+				} else if (length_re.test(c)) {
+					if (!cur.lenmod) { cur.lenmod = c; }
+					else { cur.lenmod += c; }
 				} else if (!cur.mod && width_re1.test(c)) {
 					cur.mod = c;
 				} else if (cur.mod && width_re.test(c)) {
 					cur.mod += c;
 				} else if (flags_re.test(c)) {
-					if (cur.mod) { throw "pyformat: width modifier should go after flags"; }
+					if (cur.mod) { throw new Error("pyformat: width modifier should go after flags"); }
 					cur[flag_map[c]] = true;
 				} else {
-					throw "pyformat: bad format specifier: " + c;
+					throw new Error("pyformat: bad format specifier: " + c);
 				}
 			}
 		}
@@ -144,7 +151,7 @@
 		if (!cur) { return ''; }
 		if (Object.keys(cur).length === 0) { return ret; }
 		if (this.is_obj && !cur.name) {
-			throw "pyformat: object is passed as argument to a array-based formatting string";
+			throw new Error("pyformat: object is passed as argument to a array-based formatting string");
 		}
 		if (cur.mod) {
 			t = cur.mod.split('.');
@@ -161,7 +168,7 @@
 			} else if (cur.name.indexOf('.') >= 0) {
 				ret = this.resolve(cur.name, args);
 			} else {
-				throw "pyformat: key " + cur.name + " does not exist in the object";
+				throw new Error("pyformat: key " + cur.name + " does not exist in the object");
 			}
 		} else {
 			// console.log('array', cur, args);
@@ -233,7 +240,7 @@
 					ret = ret.substr(0, prec);
 				}
 			} else {
-				throw "No JSON library is available, couldn't use the %r format specifier. Please, install JSON.js or use a modern browser";
+				throw new Error("No JSON library is available, couldn't use the %r format specifier. Please, install JSON.js or use a modern browser");
 			}
 		} else if (cur.format === 's') {
 			ret = ret.toString();

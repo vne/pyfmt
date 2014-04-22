@@ -12,14 +12,14 @@ Description
 
 See [https://docs.python.org/2/library/stdtypes.html#string-formatting](https://docs.python.org/2/library/stdtypes.html#string-formatting) for information about original Python syntax.
 
-This library is intented to simplify formatting of arbitrary data in strings. All Python format specifiers are supported, but not all are handled in exactly the same manner, although the library tries to do its best. Length modifiers are not supported for now, but they are in a roadmap.
-
+This library is intented to simplify formatting of arbitrary data in strings. All Python format specifiers are supported, but not all are handled in exactly the same manner, although the library tries to do its best.
 pyfmt currently recognizes the following syntax:
 
-	> %(name)[flags]width.precision<format>
+	> %(name)[flags]width.precision[length_modifiers]<format>
 
 where only the % sign and <format> are mandatory:
 
+	> %(varname)#10.4hlLf
 	> %(varname)#10.4f
 	> %(varname)-10.4f
 	> %(varname) 10.4f
@@ -62,6 +62,8 @@ format strings. E.g., the following is incorrect:
 The exception will be raised in this case. Python behaves the same.
 
 You can pass an array as argument to pyfmt or you can simply specify multiple argument. Both things lead to the same result.
+
+pyfmt uses JSON for string representation of complex objects for %r format. JSON library must be available. If there is no JSON library and %r format is used, an exception is thrown.
 
 Additions
 ---------
