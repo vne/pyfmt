@@ -12,14 +12,19 @@ Description
 
 See [https://docs.python.org/2/library/stdtypes.html#string-formatting](https://docs.python.org/2/library/stdtypes.html#string-formatting) for information about original Python syntax.
 
-This library is intented to simplify formatting of arbitrary data in strings. All Python format specifiers are supported, but not all are handled in exactly the same manner, although the library tries to do its best. Conversion flags and length modifiers are not supported for now, but they are in a roadmap.
+This library is intented to simplify formatting of arbitrary data in strings. All Python format specifiers are supported, but not all are handled in exactly the same manner, although the library tries to do its best. Length modifiers are not supported for now, but they are in a roadmap.
 
 pyfmt currently recognizes the following syntax:
 
-	> %(name)width.precision<format>
+	> %(name)[flags]width.precision<format>
 
 where only the % sign and <format> are mandatory:
 
+	> %(varname)#10.4f
+	> %(varname)-10.4f
+	> %(varname) 10.4f
+	> %(varname)+10.4f
+	> %(varname)010.4f
 	> %(varname)10.4f
 	> %(varname)10f
 	> %(varname).4f

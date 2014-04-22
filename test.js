@@ -73,6 +73,23 @@ describe('pyfmt (prototype method, 1 argument)', function() {
 		it('should format objects as zeroes', function() {
 			assert.deepEqual("0", "%o".pyfmt([ {a:1,b:2} ]));
 		});
+		it('should add zero from the left if alternate modifier is used', function() {
+			assert.deepEqual("05", "%#o".pyfmt([ 5 ]));
+		});
+	});
+	describe('hex format modifier', function() {
+		it('should format strings as zeroes', function() {
+			assert.deepEqual("0", "%x".pyfmt(["abcdef"]));
+		});
+		it('should format strings containing numbers as hex numbers', function() {
+			assert.deepEqual("de", "%x".pyfmt(222));
+		});
+		it('should format numbers as hex numbers with sign', function() {
+			assert.deepEqual("-de", "%+x".pyfmt(-222));
+		});
+		it('should format numbers as hex numbers with space', function() {
+			assert.deepEqual(" de", "% x".pyfmt(222));
+		});
 	});
 	describe('float format modifier', function() {
 		it('should format strings as zeroes', function() {
@@ -137,7 +154,7 @@ describe('pyfmt (prototype method, 1 argument)', function() {
 			assert.deepEqual('123456789', "%4d".pyfmt([123456789]))
 		});
 	});
-	describe('format with float precision modifier', function() {
+	describe('format with precision modifier', function() {
 		it('should add zeroes to integer numbers from the right', function() {
 			assert.deepEqual('5.000', "%.3d".pyfmt([5]))
 		});
@@ -146,6 +163,12 @@ describe('pyfmt (prototype method, 1 argument)', function() {
 		});
 		it('should add zeroes to float numbers from the right', function() {
 			assert.deepEqual('5.250', "%.3f".pyfmt([5.25]))
+		});
+		it('should cut the strings at length specified by precision', function() {
+			assert.deepEqual("abcde", "%.5s".pyfmt(["abcdefqwerty"]))
+		});
+		it('should cut the JSON object representation at length specified by precision', function() {
+			assert.deepEqual('{"a":', "%.5r".pyfmt([{a:1,b:2}]))
 		});
 	});
 
@@ -164,6 +187,35 @@ describe('pyfmt (prototype method, object argument)', function() {
 	});
 	it('should resolve names with dots', function() {
 		assert.deepEqual("5", "%(a.b.c)d".pyfmt({ a: { b: { c: 5 } } }))
+	});
+});
+describe('pyfmt', function() {
+	it('should pad values with zeroes when "0" flag is used', function() {
+		assert.deepEqual("00005", "%05d".pyfmt(5));
+	});
+	it('should adjust value to the left and pad it with spaces from the right', function() {
+		assert.deepEqual("5    ", "%-5d".pyfmt(5));
+	});
+	it('should add a space for a sign for positive numbers', function() {
+		assert.deepEqual(" 5", "% d".pyfmt(5));
+	});
+	it('should NOT add a space for a sign for negative numbers', function() {
+		assert.deepEqual("-5", "% d".pyfmt(-5));
+	});
+	it('should add a + sign for positive numbers', function() {
+		assert.deepEqual("+5", "%+d".pyfmt(5));
+	});
+	it('should add a - sign for negative numbers', function() {
+		assert.deepEqual("-5", "%+d".pyfmt(-5));
+	});
+	it('should add a 0x sign for hex numbers', function() {
+		assert.deepEqual("0xde", "%#x".pyfmt(222));
+	});
+	it('should add a dot for numbers with zero precision formatted by "e"', function() {
+		assert.deepEqual(" 5.e+0", "%#6e".pyfmt(5));
+	});
+	it('should add a dot for numbers with zero precision formatted by "f"', function() {
+		assert.deepEqual("    5.", "%#6f".pyfmt(5));
 	});
 });
 describe('pyfmt (lib)', function() {
