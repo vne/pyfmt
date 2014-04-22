@@ -1,0 +1,34 @@
+{
+  "name": "pyfmt",
+  "version": "0.0.1",
+  "description": "Python flavored string formatting",
+  "main": "pyfmt.js",
+  "scripts": {
+    "test": "mocha test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vne/pyfmt.git"
+  },
+  "keywords": [
+    "python",
+    "string",
+    "formatting"
+  ],
+  "author": "Vladimir Neverov <sanguini@gmail.com>",
+  "homepage": "https://github.com/vne/pyfmt/wiki",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vne/pyfmt/issues",
+    "email": "sanguini@gmail.com"
+  },
+  "devDependencies": {
+    "assert": "latest",
+    "JSON": "latest",
+    "mocha": "latest",
+    "grunt": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-simple-mocha": "latest",
+    "grunt-markdown": "latest"
+  }
+}
