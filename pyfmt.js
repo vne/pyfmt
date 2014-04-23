@@ -1,5 +1,5 @@
 (function() {
-	var fmtcs = /[diouxXeEfFgGcrs%]/,
+	var fmtcs = /[bdiouxXeEfFgGcrs%]/,
 		fmt_number = /[diouxXeEfFgG]/,
 		fmt_int = /[diu]/,
 		// fmt_float = /[eEfFgG]/,
@@ -243,6 +243,9 @@
 			}
 
 			if ((['x', 'X'].indexOf(cur.format) < 0) && isNaN(ret)) { ret = 0; } // just for convenience
+		} else if (cur.format === "b") {
+			if (ret) { ret = 'true'; }
+			else { ret = 'false'; }
 		} else if (cur.format === 'c') {
 			if (ret && ret.constructor && ret.constructor === String) {
 				ret = ret.charAt(0);

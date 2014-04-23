@@ -139,6 +139,27 @@ describe('pyfmt (prototype method, 1 argument)', function() {
 			assert.deepEqual('{"a":1,"b":2}', "%r".pyfmt([ {a:1,b:2} ]))
 		});
 	});
+	describe('boolean (%b) format modifier', function() {
+		it('should return true for natural true boolean format specifier', function() {
+			assert.equal("true", "%b".pyfmt(true));
+		});
+		it('should return false for natural false boolean format specifier', function() {
+			assert.equal("false", "%b".pyfmt(false));
+		});
+		it('should return true for pseudo true boolean format specifier', function() {
+			assert.equal("true", "%b".pyfmt(1));
+		});
+		it('should return false for pseudo false boolean format specifier (0)', function() {
+			assert.equal("false", "%b".pyfmt(0));
+		});
+		it('should return false for pseudo false boolean format specifier ([])', function() {
+			assert.equal("false", "%b".pyfmt([]));
+		});
+		it('should return true for empty object using boolean format specifier ({})', function() {
+			assert.equal("true", "%b".pyfmt([{}]));
+		});
+
+	});
 	describe('format with width modifier', function() {
 		it('should pad numbers with spaces from the left', function() {
 			assert.deepEqual('   5', "%4d".pyfmt([5]))
@@ -242,5 +263,10 @@ describe('pyfmt (lib)', function() {
 	});
 	it('should format strings with data passed as object', function() {
 		assert.deepEqual("a5 b5.25", (new pyfmt("a%(a)d b%(b)f")).format({a:5, b:5.25}));
+	});
+});
+describe('pyfmt', function() {
+	it('shoud return original string for absent data', function() {
+		assert.equal("%f", "%f".pyfmt());
 	});
 });

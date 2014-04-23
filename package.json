@@ -1,6 +1,6 @@
 {
   "name": "pyfmt",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Python flavored string formatting",
   "main": "pyfmt.js",
   "scripts": {

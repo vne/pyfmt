@@ -31,6 +31,8 @@ where only the % sign and <format> are mandatory:
 	> %10.4f
 	> %f
 
+See below for differences from original Python.
+
 Usage
 -----
 
@@ -38,7 +40,7 @@ pyfmt can be used both in browser and in NodeJS environments. In NodeJS you shou
 
 	> var pyfmt = require('pyfmt');
 
-This syntax provides the pyfmt class than can be used as follows:
+This syntax provides the pyfmt class that can be used as follows:
 
 	> var template = new pyfmt("test %d - %d");
 	> template.format(5, 10)
@@ -61,7 +63,7 @@ format strings. E.g., the following is incorrect:
 
 The exception will be raised in this case. Python behaves the same.
 
-You can pass an array as argument to pyfmt or you can simply specify multiple argument. Both things lead to the same result.
+You can pass an array as argument to pyfmt or you can simply specify multiple arguments. Both things lead to the same result.
 
 pyfmt uses JSON for string representation of complex objects for %r format. JSON library must be available. If there is no JSON library and %r format is used, an exception is thrown.
 
@@ -88,6 +90,8 @@ You can use special option 'nbsp' to pad data with '&nbsp;':
 	> template.format("test"); // will produce '&nbsp;&nbsp;test'
 
 Third, %e and %g (and %E and %G) formatters produce effectively the same result.
+
+Fourth, support for %b binary format. This formatter returns string 'true' for any true-like data (numbers that are not zero, non-empty strings, etc) and string 'false' for any false-like data (zeroes, empty strings, empty arrays, etc). Everything that is false in Javascript, returns 'false' here and vice versa.
 
 Tests and examples
 ------------------
