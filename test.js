@@ -188,6 +188,15 @@ describe('pyfmt (prototype method, object argument)', function() {
 	it('should resolve names with dots', function() {
 		assert.deepEqual("5", "%(a.b.c)d".pyfmt({ a: { b: { c: 5 } } }))
 	});
+	it('should resolve names with dots that include arrays', function() {
+		assert.deepEqual("10", "%(a.b[1].c)d".pyfmt({ a: { b: [ { c: 5 }, { c: 10 }, { c: 15 } ] } }))
+	});
+	it('should return zero in case of non-existent name', function() {
+		assert.deepEqual("0", "%(q.b[1].c)d".pyfmt({ a: { b: [ { c: 5 }, { c: 10 }, { c: 15 } ] } }))
+	});
+	it('should return zero in case of non-existent array element', function() {
+		assert.deepEqual("0", "%(a.b[4].c)d".pyfmt({ a: { b: [ { c: 5 }, { c: 10 }, { c: 15 } ] } }))
+	});
 });
 describe('pyfmt', function() {
 	it('should pad values with zeroes when "0" flag is used', function() {

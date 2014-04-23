@@ -65,15 +65,16 @@ You can pass an array as argument to pyfmt or you can simply specify multiple ar
 
 pyfmt uses JSON for string representation of complex objects for %r format. JSON library must be available. If there is no JSON library and %r format is used, an exception is thrown.
 
-Additions
----------
+What is different from Python
+-----------------------------
 
-pyfmt provides some small convenient additions to a standard python syntax. First, you can use nested objects as
-data providers:
+First, you can use nested objects as data providers:
 
 	> "%(first.second.data)d".pyfmt({ first: { second: { data: 42 } } })
 
-If the path couldn't be resolved, an empty string is inserted instead.
+If the path couldn't be resolved, an empty string is returned instead. Moreover, you can use array elements:
+
+	> "%(first.array[1].nested)d".pyfmt({ first: { array: [ { nested: 1 }, { nested: 2 }, { nested: 3 } ] } })
 
 Second, in case when you need left data padding (e.g. when you specify the width of the field: %10s),
 it is padded by spaces by default. You can change the symbol that is used for that to any string you like.
@@ -85,6 +86,8 @@ You can use special option 'nbsp' to pad data with '&nbsp;':
 
 	> var template = new pyfmt("%6s", { nbsp: true });
 	> template.format("test"); // will produce '&nbsp;&nbsp;test'
+
+Third, %e and %g (and %E and %G) formatters produce effectively the same result.
 
 Tests and examples
 ------------------

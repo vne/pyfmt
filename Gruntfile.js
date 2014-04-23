@@ -3,7 +3,10 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 		uglify: {
 			options: {
-				banner: '/*! <%= pkg.name %> <%= pkg.version %> // <%= grunt.template.today("dd.mm.yyyy") %> // <%= pkg.author %> // <%= pkg.homepage %> */\n'
+				banner: '/*! <%= pkg.name %> <%= pkg.version %> // <%= grunt.template.today("dd.mm.yyyy") %> // <%= pkg.author %> // <%= pkg.homepage %> */\n',
+				mangle: true,
+				compress: true,
+				preserveComments: false
 			},
 			build: {
 				src: 'pyfmt.js',

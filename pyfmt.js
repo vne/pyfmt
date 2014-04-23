@@ -1,8 +1,8 @@
 (function() {
-	var fmtcs = [ 'd', 'i' ,'o', 'u', 'x', 'X', 'e', 'E', 'f', 'F', 'g', 'G', 'c', 'r', 's', '%' ],
-		fmt_number = ['d', 'i' ,'o', 'u', 'x', 'X', 'e', 'E', 'f', 'F', 'g', 'G'],
-		fmt_int = ['d', 'i' ,'u' ],
-		fmt_float = ['e', 'E', 'f', 'F', 'g', 'G'],
+	var fmtcs = /[diouxXeEfFgGcrs%]/,
+		fmt_number = /[diouxXeEfFgG]/,
+		fmt_int = /[diu]/,
+		// fmt_float = /[eEfFgG]/,
 		width_re1 = /[1-9\.]/,   // first symbol of width modifier
 		width_re = /[0-9\.]/,    // all other symbols of width modifier
 		length_re = /[hlL]/,     // length modifiers (compatibility only)
@@ -14,22 +14,28 @@
 			" ": "space",  // add a space between padding and number for positive numbers
 			"+": "sign"    // add a sign (+/-) for numbers
 		},
-		STATES = { COPY: 0, PERCENT: 1, NAME: 2, FORMAT: 3 },
+		// FSM states
+		S = {
+			C: 0, // copy
+			P: 1, // percent symbol
+			N: 2, // variable name
+			F: 3  // format
+		},
 		JSON;
 	try {
 		JSON = window.JSON;
 	} catch(e) {
 		try {
 			JSON = require('JSON');
-		} catch(e2) {}
+		} catch(e) {}
 	}
 
-	function pyfmt(string, options) {
-		this.string = string;
-		this.options = options;
-		this.space_char = options && typeof options.space !== "undefined" ? options.space : ' ';
-		if (options && options.nbsp) {
-			this.space_char = '&nbsp;';
+	function pyfmt(s, o) {
+		this.string = s;
+		this.options = o;
+		this.spc = o && typeof o.space !== "undefined" ? o.space : ' ';
+		if (o && o.nbsp) {
+			this.spc = '&nbsp;';
 		}
 	}
 	pyfmt.upgrade = function() {
@@ -41,19 +47,20 @@
 		}
 		return this;
 	}
-	pyfmt.prototype.format = function(data) {
-		if (data.constructor === Object || data.constructor === Array) {
-			return this.parse(data);
+	pyfmt.prototype.format = function(d) {
+		var dc = d.constructor;
+		if (dc === Object || dc === Array) {
+			return this.parse(d);
 		} else {
 			// console.log(Array.prototype.slice(arguments, 0));
-			return this.parse(Array.prototype.slice.call(arguments, 0));
+			return this.parse([].slice.call(arguments, 0));
 		}
 	}
 	pyfmt.prototype.parse = function(data) {
 		var len = this.string.length,
 			i, c,
 
-			state = STATES.COPY,  // current state
+			state = S.C,  // current state
 			scr = 0,              // screening flag
 			res = '',             // resulting string
 			cur = {},             // current argument
@@ -70,21 +77,21 @@
 		// console.trace();
 		for (i = 0; i < len; i++) {
 			c = this.string.charAt(i);
-			if (state === STATES.COPY) {
+			if (state === S.C) {
 				if (scr || c !== '%') {
 					res += c;
 				} else if (c === '%') {
-					state = STATES.PERCENT;
+					state = S.P;
 				}
-			} else if (state === STATES.PERCENT) {
+			} else if (state === S.P) {
 				if (c === '(') {
-					state = STATES.NAME;
-				} else if (fmtcs.indexOf(c) >= 0) {
+					state = S.N;
+				} else if (fmtcs.test(c)) {
 					cur.argcnt = acnt++;
 					cur.format = c;
-					res += this.format_arg(cur, data);
+					res += this.arg(cur);
 					cur = {};
-					state = STATES.COPY;
+					state = S.C;
 				} else if (length_re.test(c)) {
 					if (!cur.lenmod) { cur.lenmod = c; }
 					else { cur.lenmod += c; }
@@ -93,12 +100,12 @@
 				} else if (cur.mod && width_re.test(c)) {
 					cur.mod += c;
 				} else if (flags_re.test(c)) {
-					if (cur.mod) { throw new Error("pyformat: width modifier should go after flags"); }
+					if (cur.mod) { throw new Error("width modifier should go after flags"); }
 					cur[flag_map[c]] = true;
 				} else {
-					throw new Error("pyformat: bad format specifier: " + c);
+					throw new Error("bad format specifier: " + c);
 				}
-			} else if (state === STATES.NAME) {
+			} else if (state === S.N) {
 				if (c !== ')') {
 					if (!cur.name) {
 						cur.name = c;
@@ -106,14 +113,14 @@
 						cur.name += c;
 					}
 				} else {
-					state = STATES.FORMAT;
+					state = S.F;
 				}
-			} else if (state === STATES.FORMAT) {
-				if (fmtcs.indexOf(c) >= 0) {
+			} else if (state === S.F) {
+				if (fmtcs.test(c)) {
 					cur.format = c;
-					res += this.format_arg(cur, data);
+					res += this.arg(cur);
 					cur = {};
-					state = STATES.COPY;
+					state = S.C;
 				} else if (length_re.test(c)) {
 					if (!cur.lenmod) { cur.lenmod = c; }
 					else { cur.lenmod += c; }
@@ -122,36 +129,49 @@
 				} else if (cur.mod && width_re.test(c)) {
 					cur.mod += c;
 				} else if (flags_re.test(c)) {
-					if (cur.mod) { throw new Error("pyformat: width modifier should go after flags"); }
+					if (cur.mod) { throw new Error("width modifier should go after flags"); }
 					cur[flag_map[c]] = true;
 				} else {
-					throw new Error("pyformat: bad format specifier: " + c);
+					throw new Error("bad format specifier: " + c);
 				}
 			}
 		}
-		res += this.format_arg(cur, data);
+		res += this.arg(cur);
 		return res;
 	}
-	pyfmt.prototype.resolve = function(name, obj) {
+	pyfmt.prototype.resolve = function(name) {
 		if (name.indexOf('.') <= 0) { return ''; }
 		var parts = name.split('.'),
-			i, o = obj;
+			i, o = this.data, p, idx = -1, re;
 		for (i in parts) {
-			if (typeof o[parts[i]] !== "undefined") {
-				o = o[parts[i]];
+			idx = -1;
+			p = parts[i];
+			if (re = /(.+)\[(\d+)\]/.exec(p)) {
+				idx = re[2];
+				p = re[1];
+			}
+			if (typeof o[p] !== "undefined") {
+				o = o[p];
+				if ((idx >= 0) && o && o.constructor === Array) {
+					if (o.length > idx) {
+						o = o[idx];
+					} else {
+						return '';
+					}
+				}
 			} else {
 				return '';
 			}
 		}
 		return o;
 	}
-	pyfmt.prototype.format_arg = function(cur, args) {
+	pyfmt.prototype.arg = function(cur) {
 		var ret = '',
 			width, prec, t, i, sc, is_number = false, base = 10;
 		if (!cur) { return ''; }
 		if (Object.keys(cur).length === 0) { return ret; }
 		if (this.is_obj && !cur.name) {
-			throw new Error("pyformat: object is passed as argument to a array-based formatting string");
+			throw new Error("object is passed as argument to a array-based formatting string");
 		}
 		if (cur.mod) {
 			t = cur.mod.split('.');
@@ -160,24 +180,24 @@
 				prec = parseInt(t[1], 10);
 			}
 		}
-		// console.log('format_arg', cur);
+		// console.log('arg', cur);
 		if (this.is_obj) {
-			// console.log('obj', cur, args);
-			if (typeof args[cur.name] !== "undefined") {
-				ret = args[cur.name];
+			// console.log('obj', cur, this.data);
+			if (typeof this.data[cur.name] !== "undefined") {
+				ret = this.data[cur.name];
 			} else if (cur.name.indexOf('.') >= 0) {
-				ret = this.resolve(cur.name, args);
+				ret = this.resolve(cur.name);
 			} else {
-				throw new Error("pyformat: key " + cur.name + " does not exist in the object");
+				throw new Error("key " + cur.name + " does not exist in the object");
 			}
 		} else {
-			// console.log('array', cur, args);
-			ret = args[cur.argcnt];
+			// console.log('array', cur, this.data);
+			ret = this.data[cur.argcnt];
 		}
-		if (fmt_number.indexOf(cur.format) >= 0) {
+		if (fmt_number.test(cur.format)) {
 			is_number = true;
 			// console.log('a number');
-			if (fmt_int.indexOf(cur.format) >= 0) {
+			if (fmt_int.test(cur.format)) {
 				ret = parseInt(ret, 10);
 				if (prec && prec > 0) { ret = ret.toFixed(prec); }
 			} else if (['e', 'E', 'g', 'G'].indexOf(cur.format) >= 0) {
@@ -261,7 +281,7 @@
 			ret = ret.toString();
 		}
 		if (width && width > 0 && ret.length < width) {
-			sc = cur.zero ? '0' : this.space_char;
+			sc = cur.zero ? '0' : this.spc;
 			t = width - ret.length;
 			if (cur.left) {
 				for (i = 0; i < t; i++) {
