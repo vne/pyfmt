@@ -266,7 +266,13 @@ describe('pyfmt (lib)', function() {
 	});
 });
 describe('pyfmt', function() {
-	it('shoud return original string for absent data', function() {
+	it('should return original string for numeric format and absent data', function() {
 		assert.equal("%f", "%f".pyfmt());
 	});
+	it('should return zero for numeric format and undefined data', function() {
+		assert.equal("0", "%f".pyfmt(undefined));
+	});
+	it('should return empty string for string format and undefined data', function() {
+		assert.equal("", "%s".pyfmt(undefined));
+	})
 });

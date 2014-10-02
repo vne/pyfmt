@@ -48,8 +48,7 @@
 		return this;
 	}
 	pyfmt.prototype.format = function(d) {
-		var dc = d.constructor;
-		if (dc === Object || dc === Array) {
+		if (typeof d !== "undefined" && (d.constructor === Object || d.constructor === Array)) {
 			return this.parse(d);
 		} else {
 			// console.log(Array.prototype.slice(arguments, 0));
@@ -266,9 +265,13 @@
 				throw new Error("No JSON library is available, couldn't use the %r format specifier. Please, install JSON.js or use a modern browser");
 			}
 		} else if (cur.format === 's') {
-			ret = ret.toString();
-			if (prec) {
-				ret = ret.substr(0, prec);
+			if (typeof ret !== "undefined") {
+				ret = ret.toString();
+				if (prec) {
+					ret = ret.substr(0, prec);
+				}
+			} else {
+				ret = '';
 			}
 		}
 
