@@ -274,5 +274,8 @@ describe('pyfmt', function() {
 	});
 	it('should return empty string for string format and undefined data', function() {
 		assert.equal("", "%s".pyfmt(undefined));
+	});
+	it('should output double percent sybmol as single percent char', function() {
+		assert.equal("5 % 10", "%d %% %d".pyfmt(5, 10));
 	})
 });

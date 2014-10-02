@@ -76,6 +76,7 @@
 		// console.trace();
 		for (i = 0; i < len; i++) {
 			c = this.string.charAt(i);
+			// console.log('  ', i, state, c, '|', res);
 			if (state === S.C) {
 				if (scr || c !== '%') {
 					res += c;
@@ -83,7 +84,10 @@
 					state = S.P;
 				}
 			} else if (state === S.P) {
-				if (c === '(') {
+				if (c === '%') {
+					res += c;
+					state = S.C;
+				} else if (c === '(') {
 					state = S.N;
 				} else if (fmtcs.test(c)) {
 					cur.argcnt = acnt++;
