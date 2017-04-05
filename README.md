@@ -97,5 +97,5 @@ Tests and examples
 ------------------
 
 More examples of library usage can be found in **test.js** file. To run tests you will
-need [Mocha](http://visionmedia.github.io/mocha/), the tests themselves use built-in
+need [Mocha](http://mochajs.org/), the tests themselves use built-in
 NodeJS [assert](http://nodejs.org/api/assert.html) module.
